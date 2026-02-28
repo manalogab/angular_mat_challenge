@@ -1,0 +1,8 @@
+[build]
+  command = "npm install && npm run build -- --configuration production"
+  publish = "dist/angular_mat_challenge"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
