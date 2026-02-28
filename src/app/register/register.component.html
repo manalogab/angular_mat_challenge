@@ -1,0 +1,261 @@
+<div class="page-wrapper" [class.dark-mode]="isDarkMode">
+  <div class="form-container">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <mat-icon>school</mat-icon>
+        <span>EduPortal</span>
+      </div>
+      <div class="theme-toggle">
+        <mat-icon>light_mode</mat-icon>
+        <mat-slide-toggle [(ngModel)]="isDarkMode" color="accent"></mat-slide-toggle>
+        <mat-icon>dark_mode</mat-icon>
+      </div>
+    </div>
+
+    <h1 class="form-title">Student Registration</h1>
+    <p class="form-subtitle">Create your EduPortal account</p>
+
+    <form [formGroup]="formdata" (ngSubmit)="onSubmit()" class="registration-form">
+
+      <!-- Stepper -->
+      <mat-stepper [linear]="true" #stepper orientation="vertical">
+
+        <!-- Step 1: Personal Info -->
+        <mat-step [stepControl]="personalInfo" label="Personal Information">
+          <div formGroupName="personalInfo" class="step-content">
+
+            <div class="row-2">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>First Name</mat-label>
+                <input matInput formControlName="firstName" placeholder="Juan">
+                <mat-icon matPrefix>person</mat-icon>
+                <mat-error *ngIf="personalInfo.get('firstName')?.hasError('required')">First name is required</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Last Name</mat-label>
+                <input matInput formControlName="lastName" placeholder="Dela Cruz">
+                <mat-icon matPrefix>person_outline</mat-icon>
+                <mat-error *ngIf="personalInfo.get('lastName')?.hasError('required')">Last name is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Date of Birth</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="birthDate" [max]="maxDate">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker startView="multi-year"></mat-datepicker>
+              <mat-hint>Must be born in 2006 or earlier</mat-hint>
+              <mat-error *ngIf="personalInfo.get('birthDate')?.hasError('required')">Date of birth is required</mat-error>
+              <mat-error *ngIf="personalInfo.get('birthDate')?.hasError('tooYoung')">You must be born in 2006 or earlier to register</mat-error>
+            </mat-form-field>
+
+            <div class="gender-group">
+              <label class="field-label">Gender</label>
+              <mat-radio-group formControlName="gender" class="radio-group">
+                <mat-radio-button value="male">Male</mat-radio-button>
+                <mat-radio-button value="female">Female</mat-radio-button>
+                <mat-radio-button value="other">Other</mat-radio-button>
+                <mat-radio-button value="prefer_not">Prefer not to say</mat-radio-button>
+              </mat-radio-group>
+              <mat-error *ngIf="personalInfo.get('gender')?.invalid && personalInfo.get('gender')?.touched">Gender is required</mat-error>
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Phone Number</mat-label>
+              <input matInput formControlName="phone" placeholder="09XXXXXXXXX">
+              <mat-icon matPrefix>phone</mat-icon>
+              <mat-error *ngIf="personalInfo.get('phone')?.hasError('required')">Phone number is required</mat-error>
+              <mat-error *ngIf="personalInfo.get('phone')?.hasError('pattern')">Enter a valid PH phone number</mat-error>
+            </mat-form-field>
+
+            <div class="step-actions">
+              <button mat-raised-button color="primary" matStepperNext type="button"
+                [disabled]="personalInfo.invalid">Next</button>
+            </div>
+          </div>
+        </mat-step>
+
+        <!-- Step 2: Academic Info -->
+        <mat-step [stepControl]="academicInfo" label="Academic Information">
+          <div formGroupName="academicInfo" class="step-content">
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>School / University</mat-label>
+              <input matInput formControlName="school" [matAutocomplete]="schoolAuto" placeholder="Search your school...">
+              <mat-icon matPrefix>account_balance</mat-icon>
+              <mat-autocomplete #schoolAuto="matAutocomplete">
+                <mat-option *ngFor="let school of filteredSchools" [value]="school">{{ school }}</mat-option>
+              </mat-autocomplete>
+              <mat-error *ngIf="academicInfo.get('school')?.hasError('required')">School is required</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Course / Program</mat-label>
+              <mat-select formControlName="course">
+                <mat-option value="bsit">BS Information Technology</mat-option>
+                <mat-option value="bscs">BS Computer Science</mat-option>
+                <mat-option value="bsis">BS Information Systems</mat-option>
+                <mat-option value="bsece">BS Electronics Engineering</mat-option>
+                <mat-option value="bsce">BS Computer Engineering</mat-option>
+                <mat-option value="bsed">BS Education</mat-option>
+                <mat-option value="bsba">BS Business Administration</mat-option>
+                <mat-option value="other">Other</mat-option>
+              </mat-select>
+              <mat-icon matPrefix>menu_book</mat-icon>
+              <mat-error *ngIf="academicInfo.get('course')?.hasError('required')">Course is required</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Year Level</mat-label>
+              <mat-select formControlName="yearLevel">
+                <mat-option value="1">1st Year</mat-option>
+                <mat-option value="2">2nd Year</mat-option>
+                <mat-option value="3">3rd Year</mat-option>
+                <mat-option value="4">4th Year</mat-option>
+              </mat-select>
+              <mat-icon matPrefix>grade</mat-icon>
+              <mat-error *ngIf="academicInfo.get('yearLevel')?.hasError('required')">Year level is required</mat-error>
+            </mat-form-field>
+
+            <div class="skills-group">
+              <label class="field-label">Subjects of Interest</label>
+              <mat-chip-listbox formControlName="subjects" multiple>
+                <mat-chip-option *ngFor="let subject of subjectList" [value]="subject"
+                  (click)="toggleSubject(subject)" [selected]="selectedSubjects.includes(subject)">
+                  {{ subject }}
+                </mat-chip-option>
+              </mat-chip-listbox>
+            </div>
+
+            <div class="slider-group">
+              <label class="field-label">Study Hours Per Day: {{ studyHours }}</label>
+              <mat-slider min="1" max="12" step="1" class="full-width" color="accent">
+                <input matSliderThumb formControlName="studyHours" (valueChange)="studyHours = $event">
+              </mat-slider>
+            </div>
+
+            <div class="step-actions">
+              <button mat-stroked-button matStepperPrevious type="button">Back</button>
+              <button mat-raised-button color="primary" matStepperNext type="button"
+                [disabled]="academicInfo.invalid">Next</button>
+            </div>
+          </div>
+        </mat-step>
+
+        <!-- Step 3: Account Info -->
+        <mat-step [stepControl]="accountInfo" label="Account Setup">
+          <div formGroupName="accountInfo" class="step-content">
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email Address</mat-label>
+              <input matInput type="email" formControlName="email" placeholder="juan@email.com">
+              <mat-icon matPrefix>email</mat-icon>
+              <mat-error *ngIf="accountInfo.get('email')?.hasError('required')">Email is required</mat-error>
+              <mat-error *ngIf="accountInfo.get('email')?.hasError('email')">Enter a valid email address</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Username</mat-label>
+              <input matInput formControlName="username" placeholder="juandc2006">
+              <mat-icon matPrefix>alternate_email</mat-icon>
+              <mat-error *ngIf="accountInfo.get('username')?.hasError('required')">Username is required</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Password</mat-label>
+              <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+              <mat-icon matPrefix>lock</mat-icon>
+              <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+                <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              <mat-hint>Alphanumeric, min 8 chars, must start with a letter</mat-hint>
+              <mat-error *ngIf="accountInfo.get('password')?.hasError('required')">Password is required</mat-error>
+              <mat-error *ngIf="accountInfo.get('password')?.hasError('minlength')">Minimum 8 characters required</mat-error>
+              <mat-error *ngIf="accountInfo.get('password')?.hasError('pattern')">Must start with a letter and contain only alphanumeric characters</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Confirm Password</mat-label>
+              <input matInput [type]="hideConfirm ? 'password' : 'text'" formControlName="confirmPassword">
+              <mat-icon matPrefix>lock_outline</mat-icon>
+              <button mat-icon-button matSuffix type="button" (click)="hideConfirm = !hideConfirm">
+                <mat-icon>{{ hideConfirm ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              <mat-error *ngIf="accountInfo.get('confirmPassword')?.hasError('required')">Please confirm your password</mat-error>
+              <mat-error *ngIf="accountInfo.hasError('passwordMismatch') && accountInfo.get('confirmPassword')?.touched">Passwords do not match</mat-error>
+            </mat-form-field>
+
+            <!-- Password strength -->
+            <div class="password-strength" *ngIf="accountInfo.get('password')?.value">
+              <label class="field-label">Password Strength</label>
+              <mat-progress-bar [value]="passwordStrength" [color]="passwordStrengthColor" mode="determinate"></mat-progress-bar>
+              <span class="strength-label">{{ passwordStrengthLabel }}</span>
+            </div>
+
+            <div class="toggles-group">
+              <div class="toggle-row">
+                <mat-icon>notifications</mat-icon>
+                <span>Email Notifications</span>
+                <mat-slide-toggle formControlName="emailNotifs" color="primary"></mat-slide-toggle>
+              </div>
+              <div class="toggle-row">
+                <mat-icon>policy</mat-icon>
+                <span>I agree to the Terms & Conditions</span>
+                <mat-slide-toggle formControlName="terms" color="primary"></mat-slide-toggle>
+              </div>
+            </div>
+            <mat-error *ngIf="accountInfo.get('terms')?.invalid && accountInfo.get('terms')?.touched" class="terms-error">
+              You must agree to the terms
+            </mat-error>
+
+            <div class="step-actions">
+              <button mat-stroked-button matStepperPrevious type="button">Back</button>
+              <button mat-raised-button color="primary" type="submit"
+                [disabled]="formdata.invalid || isSubmitting">
+                <mat-icon>how_to_reg</mat-icon>
+                Register
+              </button>
+            </div>
+          </div>
+        </mat-step>
+
+      </mat-stepper>
+    </form>
+
+    <!-- Success Snackbar triggered via mat-card -->
+    <mat-card *ngIf="submitted" class="success-card" [@fadeIn]>
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="success-icon">check_circle</mat-icon>
+        <mat-card-title>Registration Successful!</mat-card-title>
+        <mat-card-subtitle>Welcome to EduPortal, {{ submittedData?.personalInfo?.firstName }}!</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list>
+          <mat-list-item>
+            <mat-icon matListItemIcon>person</mat-icon>
+            <span matListItemTitle>{{ submittedData?.personalInfo?.firstName }} {{ submittedData?.personalInfo?.lastName }}</span>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item>
+            <mat-icon matListItemIcon>email</mat-icon>
+            <span matListItemTitle>{{ submittedData?.accountInfo?.email }}</span>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item>
+            <mat-icon matListItemIcon>school</mat-icon>
+            <span matListItemTitle>{{ submittedData?.academicInfo?.school }} — {{ submittedData?.academicInfo?.course | uppercase }}</span>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <mat-list-item>
+            <mat-icon matListItemIcon>cake</mat-icon>
+            <span matListItemTitle>{{ submittedData?.personalInfo?.birthDate | date:'longDate' }}</span>
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+</div>
